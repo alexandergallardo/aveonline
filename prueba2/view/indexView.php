@@ -211,17 +211,16 @@
                         {
                             $.post('<?php echo $helper->url("Producto", "borrar") ?>',  {'refproducto': referencia }, function(ans)
                             {
-                                Swal.fire(({
+                                Swal.fire({
                                     title: ans.msg,
                                     icon: 'info',
                                     text: '.'
-                                }));
+                                });
 
-                                //window.open('<?php echo $helper->url("Producto", "index") ?>',"_self");
+                                if(and.error === '0')
+                                    javascript:location.reload(true);
 
                             },'json');
-
-
 
                         }
                     });
