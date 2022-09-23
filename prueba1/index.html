@@ -1,0 +1,147 @@
+<!DOCTYPE HTML>
+
+<html lang="es" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="utf-8"/>
+    <title>PRUEBA 1</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        input{
+            margin-top:5px;
+            margin-bottom:5px;
+        }
+        .right{
+            float:right;
+        }
+    </style>
+
+    <script type="text/javascript">
+        $(function(){
+            //obtenerDatos();
+
+            $('#btnSeek').on('click',function(){
+
+               obtenerDatos( $('#txtGuia').val() );
+            });
+
+
+            //validar que cada tecla pulsada en el input txtGuia sea solo numerico ola tecla de retroceso
+            $(".numerico").keydown(function(event){
+                if(( event.keyCode < 48 || event.keyCode > 57) &&
+                    (event.keyCode < 96 || event.keyCode > 105) &&
+                     event.keyCode !==190  && event.keyCode !==110 && event.keyCode !==8 && event.keyCode !==9  ){
+                    return false;
+                }
+            });
+
+        });
+
+        //Funcion que valida ue el # d eguia a consultar sea valor numerico
+        function validarGuia(codigo)
+        {
+            var valoresAceptados = /^[0-9]+$/;
+
+            if (codigo.match(valoresAceptados)){
+                return true;
+            }
+
+            return false;
+        }
+
+        //Funcion usada para consumir el webservice
+        function obtenerDatos(codigo)
+        {
+
+            if(!validarGuia(codigo))
+            {
+                Swal.fire(({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'El # de guia debe ser un valor numerico'
+                }));
+
+                return false;
+            }
+
+            if(codigo.length <= 0)
+            {
+                Swal.fire(({
+                    icon: 'info',
+                    title: 'Oops...',
+                    text: 'No se ha  digitado el # de guia'
+                }));
+
+                return false;
+            }
+
+            $.each($('form input:text'), function(index, formField) {
+                $(formField).val(encodeURIComponent($(formField).val()));
+            });
+
+            $.ajax({
+                type : 'GET',
+                url : "https://aveonline.co/api/nal/v1.0/estado_guia.php?guia=" + codigo,
+                dataType : 'json',
+                success : function(data) {
+
+                    if(data.type_error != '0'){
+                        Swal.fire(({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: response.response
+                        }));
+                    }else
+                    {
+                        $('.info').empty();
+
+                        $('.info').append(
+                            ' <div class="col-xs-12"><h4>DATOS DE LA GUIA</h4><hr/>' +
+                            '<b>dsconsec: </b>' + data.response.guias[0].dsconsec + '<br />' +
+                            '<b>destinatario: </b>' + data.response.guias[0].destinatario + '<br />' +
+                            '<b>telefono: </b>' + data.response.guias[0].telefono + '<br />' +
+                            '<b>direccion: </b>' + data.response.guias[0].direccion + '<br />' +
+                            '<b>estado: </b>' + data.response.guias[0].estado + '<br />' +
+                            '<b>rutadigitalizada: </b><a id="imagen"  href="' + data.response.guias[0].rutadigitalizada+ '" target="_blank">' + data.response.guias[0].rutadigitalizada + '</a><br />' +
+                            '<b>origen: </b>' + data.response.guias[0].origen + '<br />' +
+                            '<b>destino: </b>' + data.response.guias[0].destino + '<br />' +
+                            '<b>dsreferencia: </b>' + data.response.guias[0].dsreferencia + '<br />' +
+                            '<b>dsordencompra: </b>' + data.response.guias[0].dsordencompra + '<br />' +
+                            '<b>idagente: </b>' + data.response.guias[0].idagente + '<br />' +
+                            '<b>idempresa: </b>' + data.response.guias[0].idempresa + '<br />' +
+                            '<b>idcliente: </b>' + data.response.guias[0].idcliente + '<br />' +
+                            '<b>dsfechaentrega: </b>' + data.response.guias[0].dsfechaentrega + '<br />' +
+                            '<b>rutave: </b><a id="imagen"  href="' + data.response.guias[0].rutave+ '" target="_blank">' + data.response.guias[0].rutave + '</a><br />' +
+                            '<b>historicos: </b>' + JSON.stringify(data.response.guias[0].historicos) +
+                            '</div>'
+                        );
+                    }
+                },
+            }) ;
+
+        }
+
+    </script>
+</head>
+<body>
+    <div class="col-lg-5">
+        <div class="col-xs-12">
+            <h4>CONSULTAR GUIAS</h4>
+            <hr/>
+            <form>
+            # de gu&iacute;a: <input type="text" name="txtGuia" id="txtGuia" class="numerico" />
+
+            <button type="button" name="btnSeek" id="btnSeek" class="btn btn-success">Consultar</button>
+            </form>
+        </div>
+    </div>
+
+    <section class="col-lg-7 info" style="height:400px;overflow-y:scroll;">
+
+    </section>
+</body>
+</html>
