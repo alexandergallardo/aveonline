@@ -83,6 +83,8 @@
                 $(formField).val(encodeURIComponent($(formField).val()));
             });
 
+            $('.info').empty();
+
             $.ajax({
                 type : 'GET',
                 url : "https://aveonline.co/api/nal/v1.0/estado_guia.php?guia=" + codigo,
@@ -90,11 +92,11 @@
                 success : function(data) {
 
                     if(data.type_error != '0'){
-                        Swal.fire(({
+                        Swal.fire({
                             icon: 'error',
                             title: 'Oops...',
-                            text: response.response
-                        }));
+                            text: data.response
+                        });
                     }else
                     {
                         $('.info').empty();
