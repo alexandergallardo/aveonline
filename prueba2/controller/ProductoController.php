@@ -13,6 +13,7 @@
             $all = $lista->getAll();
 
             $this->view("index", array( "productos" => $all ));
+
         }
 
         public function buscar()
@@ -99,12 +100,10 @@
 
                         }
 
-                        echo '{"error" : "0", "msg" : "Proceso  realizado satisfactoriamente"}';
-                    }else echo '{"error" : "-88", "msg" : "La referencia digitada ya se encuentra asignada a otro producto"}';
+                        echo '{"error" : "0", "msg" : "Proceso  realizado satisfactoriamente", "icon" : "success", "title" : "Guardando Producto" }';
+                    }else echo '{"error" : "-88", "msg" : "La referencia digitada ya se encuentra asignada a otro producto", "icon" : "error", "title" : "Proceso no ejecutado"}';
 
-
-
-            }else echo '{"error" : "-99", "msg" : "Operacion no permitida"}';
+            }else echo '{"error" : "-99", "msg" : "Operacion no permitida", "icon" : "error", "title" : "Error"}';
 
         }
 
@@ -120,13 +119,43 @@
 
                     $prod->delete($refproducto);
 
-                    echo '{"error" : "0", "msg" : "El Producto se elimino satisfactoriamente"}';
-                }
+                    echo '{"error" : "0", "msg" : "El Producto se elimino satisfactoriamente", "icon" : "success", "title" : "Eliminando Producto '.$refproducto.'"}';
+                }else   echo '{"error" : "-99", "msg" : "Referencia no especificada",  "icon" : "info", "title" : "Eliminando Producto"}';
+            }else       echo '{"error" : "-99", "msg" : "Operacion no permitida",  "icon" : "error", "title" : "Eliminando Producto"}';
 
-                echo '{"error" : "-99", "msg" : "Referencia no especificada"}';
+        }
+
+        public function datatableProductos()
+        {
+            $response       = new stdClass;
+            $requestData= $_REQUEST;
+
+            //$response->draw = $_POST["draw"];
+            $response->draw = intval($requestData['draw']);
+
+            $producto = new Producto();
+            $results  = $producto->getAll();
+
+            $response->recordsTotal    = count($results);
+            $response->recordsFiltered = $response->recordsTotal;
+            $response->data            = array();
+
+            foreach($results as $row) {
+                $data                = array();
+
+                $data['referencia']  = $row->referencia;
+                $data['nombre']		 = $row->nombre;
+                $data['observacion'] = $row->observacion;
+                $data['precio']		 = number_format($row->precio, 2);
+                $data['impuesto']	 = number_format($row->impuesto, 2);
+                $data['cantidad']    = number_format($row->cantidad, 0);
+                $data['estado']  	 = $row->estado;
+                $data['imagen']      = $row->imagen;
+
+                $response->data[]    = $data;
             }
-            echo '{"error" : "-99", "msg" : "Operacion no permitida"}';
 
+            echo json_encode($response);
         }
     }
 ?>

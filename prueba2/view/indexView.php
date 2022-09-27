@@ -62,6 +62,7 @@
                 $('.precio').mask('000,000,000,000,000.00', { reverse: true });
 
 
+                datatableProductos();
 
                 $('#btnNuevo').on('click',function(){
 
@@ -91,17 +92,16 @@
                         var json = $.parseJSON(responseText);
 
                         Swal.fire(({
-                            title: 'Oops...',
-                            icon: 'warning',
+                            title: json.title,
+                            icon: json.icon,
                             text: json.msg
                         }));
 
-                        if(json.error === '0' ){
+                        if(json.error === '0' ) {
+                            datatableProductos();
 
                             $("#modal-editar").modal('hide');
-                            javascript:location.reload(true);
                         }
-
 
                         return false;
                     }
@@ -209,16 +209,18 @@
                     }).then(function(result){
                         if(result.value)
                         {
-                            $.post('<?php echo $helper->url("Producto", "borrar") ?>',  {'refproducto': referencia }, function(ans)
+                            $.post('<?php echo $helper->url("Producto", "borrar") ?>',  {'refproducto': referencia }, function(json)
                             {
+                                // var json = $.parseJSON(ans);
+
                                 Swal.fire({
-                                    title: ans.msg,
-                                    icon: 'info',
-                                    text: '.'
+                                    title: json.title,
+                                    icon: json.icon,
+                                    text: json.msg
                                 });
 
-                                if(and.error === '0')
-                                    javascript:location.reload(true);
+                                if(json.error === '0')
+                                    datatableProductos();
 
                             },'json');
 
@@ -226,6 +228,66 @@
                     });
             }
 
+            function datatableProductos()
+            {
+                var parametros= {
+                    "productos" : 'all'
+                };
+
+                var table = $('#productos-datatable').DataTable({
+                    deferRender : true,
+                    paging      : true,
+                    lengthChange: true,
+                    ordering    : true,
+                    info        : true,
+                    autoWidth   : false,
+                    destroy     : true,
+                    searching	: false,
+                    pageLength  : 20,
+                    serverSide  : true,
+                    lengthMenu: [[20, 40, 60,-1], [20, 40, 60,"Todos"]],
+                    select:{
+                        style:'single',
+                        blurable: true
+                    },
+                    ajax:{
+                        url:'<?php echo $helper->url("Producto", "datatableProductos"); ?>',
+                        type:'post',
+                    },
+                    columns:[
+                        {
+                            data:'referencia',
+                            sortable:false,
+                            render:function(data, type, row){
+                                var html = '';
+                                html += '<div class="btn-group">';
+                                html += '<button type="button" id="btnEditar" name="btnEditar" class="btn btn-success" onclick="buscar(\'' + data + '\');" ><i class="fa fa-pencil icon-pencil"></i> Editar</button>';
+                                html += '</div>';
+                                return html;
+                            }
+                        },
+                        {
+                            data:'referencia',
+                            sortable:false,
+                            render:function(data, type, row){
+                                var html = '';
+                                html += '<div class="btn-group">';
+                                html += '<button type="button" title="Eliminar" onclick="eliminarProducto(\''+ data +'\');" class="btn btn-danger"><i class="fa fa-trash icon-trash"></i> Eliminar</button>';
+                                html += '</div>';
+
+                                return html;
+                            }
+                        },
+                        {data:'referencia'},
+                        {data:'nombre'},
+                        {data:'observacion'},
+                        {data:'precio'},
+                        {data:'impuesto'},
+                        {data:'cantidad'},
+                        {data:'estado'},
+                    ],
+                });
+            }
         </script>
 
     </head>
@@ -242,7 +304,7 @@
                                         <table class="table tablesecondary table-striped-secondary table-bordered-secondary table-hover" id="productos-datatable" width="90%">
                                             <thead>
                                             <tr>
-                                                <th nowrap width=5%" colspan="2">
+                                                <th nowrap colspan="2">
                                                     <button type="button"  class="btn btn-primary" id="btnNuevo" name="btnNuevo">Agregar</button>
                                                 </th>
                                                 <th nowrap width="10%">REFERENCIA</th>
@@ -256,7 +318,7 @@
                                             </thead>
                                             <tbody>
                                                 <?php
-                                                    foreach($productos as $prod)
+                                                  /*  foreach($productos as $prod)
                                                     {
                                                         echo '<tr>';
                                                         echo '<td>';
@@ -275,7 +337,7 @@
                                                         echo '<td>'.$prod->cantidad.'</td>';
                                                         echo '<td>'.$prod->estado.'</td>';
                                                         echo '</tr>';
-                                                    }
+                                                    }*/
                                                 ?>
                                             </tbody>
                                         </table>
