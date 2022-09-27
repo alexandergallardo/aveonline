@@ -278,6 +278,17 @@
                                 return html;
                             }
                         },
+                        {
+                            data:'imagen',
+                            sortable:false,
+                            render:function(data, type, row){
+                                var html = '';
+
+                                html += '<img src="assets/productos/' + data + '" width="60%" height="60%"/>';
+
+                                return html;
+                            }
+                        },
                         {data:'referencia'},
                         {data:'nombre'},
                         {data:'observacion'},
@@ -307,6 +318,7 @@
                                                 <th nowrap colspan="2">
                                                     <button type="button"  class="btn btn-primary" id="btnNuevo" name="btnNuevo">Agregar</button>
                                                 </th>
+                                                <th nowrap width="10%">IMAGEN</th>
                                                 <th nowrap width="10%">REFERENCIA</th>
                                                 <th nowrap width="25%">NOMBRE</th>
                                                 <th nowrap width="25%">OBSERVACION</th>
